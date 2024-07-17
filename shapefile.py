@@ -37,8 +37,10 @@ def get_shapefiles():
         type = 'FeatureCollection'
         features = shape_features
 
-    geojson_file = featurecollection_schema.dumps(Meta)
+    geojson_file = featurecollection_schema.dump(Meta)
     print(geojson_file)
     return geojson_file
+
+get_shapefiles()
 
 
