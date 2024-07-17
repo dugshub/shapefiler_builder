@@ -3,6 +3,9 @@ import pathlib
 import connexion
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
+from geoalchemy2 import load_spatialite
+
+from sqlalchemy.event import listen
 from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass
 
 basedir = pathlib.Path(__file__).parent.resolve()
