@@ -40,3 +40,5 @@ df = wof_df[
      'source_geom', 'alt_geom', 'path']]
 
 reporting_markets = [market['id'] for market in config['reporting_markets']]
+
+DATAPATH = config['datapath']

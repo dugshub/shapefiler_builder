@@ -1,6 +1,6 @@
 # shapefile.py
 from config import df, reporting_markets, excluded_shapefiles, ignored_geo_shapes
-from models import Shapefile, features_schema, featurecollection_schema
+from models import ShapefileBuilder, features_schema, featurecollection_schema
 
 ## Read reporting Markets ##
 
@@ -22,7 +22,7 @@ def _get_related_ids(accepted_shapes=('neighbourhood',)):
 
 def _get_related_shapefiles():
     ids = _get_related_ids()
-    shapefiles = [Shapefile(key, val).createMaplayerObject() for key, val in ids.items()]
+    shapefiles = [ShapefileBuilder(key).createMaplayerObject() for key, val in ids.items()]
 
     ##add filter to split out shapefiles by type
     return shapefiles

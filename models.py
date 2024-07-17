@@ -4,36 +4,44 @@ from marshmallow.fields import Nested, Str, List
 from marshmallow_geojson import GeoJSONSchema, PropertiesSchema, FeatureSchema, FeatureCollectionSchema
 from sqlalchemy.orm import Mapped, mapped_column
 
-from config import db, ma
+from config import db, ma, DATAPATH
 
 
-class Shapefile():
-    def __init__(self, wof_id, filepath):
+class ShapefileBuilder():
+    def __init__(self, wof_id):
         self.id = wof_id
-        self.shapefile_path = filepath
+        self.shapefile_path = self._get_filepath()
+        self.geom: Mapped[str]
 
     def createMaplayerObject(self):
         with open(self.shapefile_path) as f:
             wof_json = geojson.load(f)
 
         geometry = wof_json['geometry']
+        self.geom = geometry
         bounding_box = wof_json['bbox']
         name = wof_json['properties']['wof:name']
         hierarchy = wof_json['properties']['wof:hierarchy']
         parent_id = wof_json['properties']['wof:parent_id']
         shape_type = wof_json['properties']['wof:placetype']
+        return self.createShapefile(
+            geometry=geometry,
+            bounding_box=bounding_box,
+            name=name,
+            hierarchy=hierarchy,
+            parent_id=parent_id
+        )
+        # if shape_type == 'neighbourhood':
+        #     return self.createNeighbourhood(
+        #         geometry=geometry,
+        #         bounding_box=bounding_box,
+        #         name=name,
+        #         hierarchy=hierarchy,
+        #         parent_id=parent_id
+        #     )
 
-        if shape_type == 'neighbourhood':
-            return self.createNeighbourhood(
-                geometry=geometry,
-                bounding_box=bounding_box,
-                name=name,
-                hierarchy=hierarchy,
-                parent_id=parent_id
-            )
-
-    def createNeighbourhood(self, geometry, bounding_box, name, hierarchy, parent_id):
-        return Neighbourhood(
+    def createShapefile(self, geometry, bounding_box, name, hierarchy, parent_id):
+        return Shapefile(
             id=self.id,
             name=name,
             bounding_box=bounding_box,
@@ -41,10 +49,15 @@ class Shapefile():
             hierarchy=hierarchy
         )
 
+    def _get_filepath(self):
+        s = str(self.id)
+        id_path = f'{DATAPATH}' + s[:3] + '/' + s[3:6] + '/' + s[6:9] + '/' + s[9:] +'/'
+        return id_path + s + '.geojson'
+
 
 #         sqla_session = db.sess
-class Neighbourhood(db.Model):
-    __tablename__ = 'neighbourhoods'
+class Shapefile(db.Model):
+    __tablename__ = 'shapefiles'
 
     id: Mapped[int] = mapped_column(primary_key=True, init=True)
     name: Mapped[str] = mapped_column(init=True)
@@ -68,7 +81,7 @@ class Neighbourhood(db.Model):
 
 class ShapefilePropertySchema(PropertiesSchema, ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Neighbourhood
+        model = Shapefile
         fields = ('id', 'name','bounding_box')
 
 

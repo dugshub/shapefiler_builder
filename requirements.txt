@@ -3,3 +3,5 @@ connexion[swagger-ui,uvicorn,flask]
 flask-marshmallow[sqlalchemy]
 pandas
 geoalchemy2
+marshmallow_geojson
+geojson

@@ -1,3 +1,5 @@
+datapath: "/Users/Shared/wofdata/data/"
+
 reporting_markets:
   - Name: "Chicago"
     id: 85940195
