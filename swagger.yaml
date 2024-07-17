@@ -10,11 +10,11 @@ servers:
   - url: "/api"
 
 paths:
-  /neighbourhoods:
+  /placetypes:
     get:
-      operationId: "placetypes.read_all"
+      operationId: "shapefile.get_shapefiles"
       tags:
-        - "Placetypes"
+        - "Shapefiles"
       summary: "Read the list of placetypes"
       responses:
         "200":
