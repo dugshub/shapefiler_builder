@@ -18,5 +18,5 @@ reporting_markets:
   - Name: "San Fransisco"
     id: 85922583
     alt_shape: "alt-mapzen"
-  - Miami:
+  - Name: "Miami"
     id: 85933669

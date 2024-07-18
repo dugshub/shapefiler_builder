@@ -42,6 +42,8 @@ class ShapefileBuilder():
                     hierarchy=hierarchy
                 )
 
+        return shape
+
     def _get_filepath(self):
         s = str(self.id)
         id_path = f'{DATAPATH}' + s[:3] + '/' + s[3:6] + '/' + s[6:9] + '/' + s[9:] + '/'
@@ -68,7 +70,6 @@ class Shapefile(db.Model):
         properties = self.properties
 
         geometry.update(properties)
-        print(geometry)
         return geometry
 
 
