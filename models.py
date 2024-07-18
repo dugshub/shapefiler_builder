@@ -39,12 +39,14 @@ class ShapefileBuilder():
         shape = Shapefile(
             id=self.id,
             name=name,
-            bounding_box=bounding_box,
-            geom=geometry,
+            #bounding_box=bounding_box,
+            #geom=geometry,
             #hierarchy=hierarchy,
             shape_type=type
         )
-
+        shape.bounding_box = bounding_box
+        shape.geom = geometry
+        shape.add_geos()
         return shape
 
     def _get_filepath(self):
@@ -55,21 +57,21 @@ class ShapefileBuilder():
 
 #         sqla_session = db.sess
 class Shapefile(db.Model):
-    __tablename__ = 'locality'
+    __tablename__ = 'shapefile'
 
     id: Mapped[int] = mapped_column(primary_key=True, init=True)
     name: Mapped[str] = mapped_column(init=True)
     shape_type: Mapped[str]=mapped_column(init=True)
-    bounding_box: []#Mapped[str]
-    geom: []#Mapped[str]
+    #bounding_box: Mapped[str]
+    #geom: Mapped[str]
     # hierarchy: str
+    bounding_box = None
+    properties = None
+    feature = None
+    geometry = None
+    geom = None
 
-    __mapper_args__ = {
-        "polymorphic_identity": "locality",
-        "polymorphic_on": "shape_type",
-    }
-
-    def __post_init__(self):
+    def add_geos(self):
         self.properties = property_schema.dump(self)
         self.geometry = geojson_schema.dump(self.geom)
         self.feature = feature_schema.dump(self)
@@ -112,14 +114,10 @@ class ShapefileFeatureCollectionSchema(FeatureCollectionSchema, ma.SQLAlchemyAut
     )
 
 
-class Neighbourhood(Shapefile):
-    __tablename__ = "neighbourhood"
-    id :Mapped[int] = mapped_column(ForeignKey('locality.id'), primary_key=True)
-    neighbourhood_name: Mapped[str]
-
-    __mapper_args__ = {
-        "polymorphic_identity": "neighbourhood",
-    }
+# class Neighbourhood(Shapefile):
+#     __tablename__ = "neighbourhood"
+#     id :Mapped[int] = mapped_column(ForeignKey('shapefile.id'), primary_key=True)
+#     neighbourhood_name: Mapped[str]
 
 
 geojson_schema = ShapefileGeoJSONSchema()

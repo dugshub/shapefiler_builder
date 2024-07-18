@@ -34,9 +34,10 @@ def _get_related_shapefiles(market_filter=[None]):
     return shapefiles
 
 
-def get_shapefiles(market_filter=None):
+def get_shapefiles(market_filter=reporting_markets):
 
-    market_filter = [85923517]
+    #market_filter = [85931779]
+    #market_filter = [85923517]
     shapefile_objs = _get_related_shapefiles(market_filter)
     shape_features = features_schema.dump(shapefile_objs)
 
