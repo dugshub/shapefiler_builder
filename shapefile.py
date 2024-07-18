@@ -26,7 +26,7 @@ def _get_related_ids(accepted_shapes=('neighbourhood',),market_filter=reporting_
 
 
 
-def _get_related_shapefiles(market_filter=None):
+def _get_related_shapefiles(market_filter=[None]):
     ids = _get_related_ids(market_filter=market_filter)
     shapefiles = [ShapefileBuilder(key).createMaplayerObject() for key, val in ids.items()]
 

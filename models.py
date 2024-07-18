@@ -2,6 +2,7 @@
 import geojson
 from marshmallow.fields import Nested, Str, List
 from marshmallow_geojson import GeoJSONSchema, PropertiesSchema, FeatureSchema, FeatureCollectionSchema
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from config import db, ma, DATAPATH
@@ -29,18 +30,20 @@ class ShapefileBuilder():
             geometry=geometry,
             bounding_box=bounding_box,
             name=name,
-            hierarchy=hierarchy,
-            parent_id=parent_id
+            #hierarchy=hierarchy,
+            parent_id=parent_id,
+            type=shape_type
         )
 
-    def createShapefile(self, geometry, bounding_box, name, hierarchy, parent_id):
+    def createShapefile(self, geometry, bounding_box, name, parent_id, type):
         shape = Shapefile(
-                    id=self.id,
-                    name=name,
-                    bounding_box=bounding_box,
-                    geom=geometry,
-                    hierarchy=hierarchy
-                )
+            id=self.id,
+            name=name,
+            bounding_box=bounding_box,
+            geom=geometry,
+            #hierarchy=hierarchy,
+            shape_type=type
+        )
 
         return shape
 
@@ -52,13 +55,19 @@ class ShapefileBuilder():
 
 #         sqla_session = db.sess
 class Shapefile(db.Model):
-    __tablename__ = 'shapefiles'
+    __tablename__ = 'locality'
 
     id: Mapped[int] = mapped_column(primary_key=True, init=True)
     name: Mapped[str] = mapped_column(init=True)
-    bounding_box: Mapped[str] = mapped_column(init=True)
-    geom: Mapped[str] = mapped_column(init=True)
-    hierarchy: str
+    shape_type: Mapped[str]=mapped_column(init=True)
+    bounding_box: []#Mapped[str]
+    geom: []#Mapped[str]
+    # hierarchy: str
+
+    __mapper_args__ = {
+        "polymorphic_identity": "locality",
+        "polymorphic_on": "shape_type",
+    }
 
     def __post_init__(self):
         self.properties = property_schema.dump(self)
@@ -76,7 +85,7 @@ class Shapefile(db.Model):
 class ShapefilePropertySchema(PropertiesSchema, ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Shapefile
-        fields = ('id', 'name', 'bounding_box')
+        fields = ('id', 'name'  )
 
 
 class ShapefileFeatureSchema(FeatureSchema, ma.SQLAlchemyAutoSchema):
@@ -92,6 +101,7 @@ class ShapefileFeatureSchema(FeatureSchema, ma.SQLAlchemyAutoSchema):
 class ShapefileGeoJSONSchema(GeoJSONSchema, ma.SQLAlchemyAutoSchema):
     feature_schema = ShapefileFeatureSchema
 
+
 class ShapefileFeatureCollectionSchema(FeatureCollectionSchema, ma.SQLAlchemyAutoSchema):
     type = Str(
         default='FeatureCollection',
@@ -101,6 +111,15 @@ class ShapefileFeatureCollectionSchema(FeatureCollectionSchema, ma.SQLAlchemyAut
         required=True,
     )
 
+
+class Neighbourhood(Shapefile):
+    __tablename__ = "neighbourhood"
+    id :Mapped[int] = mapped_column(ForeignKey('locality.id'), primary_key=True)
+    neighbourhood_name: Mapped[str]
+
+    __mapper_args__ = {
+        "polymorphic_identity": "neighbourhood",
+    }
 
 
 geojson_schema = ShapefileGeoJSONSchema()

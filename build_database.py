@@ -1,4 +1,5 @@
 from config import db, app
+import models
 
 def build_db():
     with app.app_context():
