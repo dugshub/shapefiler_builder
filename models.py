@@ -69,6 +69,7 @@ class Shapefile(db.Model):
     properties = None
     feature = None
     geometry = None
+
     geom = None
 
     def add_geos(self):
