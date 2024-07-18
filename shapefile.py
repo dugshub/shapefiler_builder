@@ -17,7 +17,9 @@ def _get_related_ids(accepted_shapes=('neighbourhood',)):
             ignored_geo_shapes) & df['is_superceded'].isin(['[]']) & ~df['source_geom'].isin(excluded_shapefiles)]
 
     ids = df2['path'].to_dict()
+    print (ids)
     return ids
+
 
 
 def _get_related_shapefiles():
@@ -30,7 +32,6 @@ def _get_related_shapefiles():
 
 def get_shapefiles():
     shapefile_objs = _get_related_shapefiles()
-    shapefile_objs = [shapefile_objs[0],shapefile_objs[1]]
     shape_features = features_schema.dump(shapefile_objs)
 
     class Meta:
@@ -41,6 +42,5 @@ def get_shapefiles():
     print(geojson_file)
     return geojson_file
 
-get_shapefiles()
 
 
