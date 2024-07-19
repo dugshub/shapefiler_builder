@@ -9,6 +9,16 @@ info:
 servers:
   - url: "/api"
 
+components:
+  parameters:
+    locality_id:
+      name: "locality_id"
+      description: "Locality id of used to fetch neighbourhoods"
+      in: path
+      required: True
+      schema:
+        type: "integer"
+
 paths:
   /placetypes:
     get:
@@ -19,3 +29,16 @@ paths:
       responses:
         "200":
           description: "Successfully read all placetypes"
+
+  /neighbourhoods/{locality_id}:
+    get:
+      operationId: "shapefile.get_neighbourhoods_by_locality_id"
+      tags:
+        - Neighbourhoods
+      parameters:
+        - $ref: "#/components/parameters/locality_id"
+      responses:
+        "204":
+          description: "Successfully pulled all neighbourhoods for neighbourhood"
+        "205":
+          description: "Locality ID incorrect, returning neighbourhoods for a random locality:D "

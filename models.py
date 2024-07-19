@@ -2,7 +2,6 @@
 import geojson
 from marshmallow.fields import Nested, Str, List
 from marshmallow_geojson import GeoJSONSchema, PropertiesSchema, FeatureSchema, FeatureCollectionSchema
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from config import db, ma, DATAPATH
@@ -25,24 +24,27 @@ class ShapefileBuilder():
         hierarchy = wof_json['properties']['wof:hierarchy']
         parent_id = wof_json['properties']['wof:parent_id']
         shape_type = wof_json['properties']['wof:placetype']
+        locality = wof_json['properties']['wof:hierarchy'][0].get('locality_id')
 
         return self.createShapefile(
             geometry=geometry,
             bounding_box=bounding_box,
             name=name,
-            #hierarchy=hierarchy,
+            # hierarchy=hierarchy,
             parent_id=parent_id,
-            type=shape_type
+            type=shape_type,
+            locality=locality
         )
 
-    def createShapefile(self, geometry, bounding_box, name, parent_id, type):
+    def createShapefile(self, geometry, bounding_box, name, parent_id, type, locality):
         shape = Shapefile(
             id=self.id,
             name=name,
-            #bounding_box=bounding_box,
-            #geom=geometry,
-            #hierarchy=hierarchy,
-            shape_type=type
+            # bounding_box=bounding_box,
+            # geom=geometry,
+            # hierarchy=hierarchy,
+            shape_type=type,
+            parent_id = locality
         )
         shape.bounding_box = bounding_box
         shape.geom = geometry
@@ -61,15 +63,15 @@ class Shapefile(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True, init=True)
     name: Mapped[str] = mapped_column(init=True)
-    shape_type: Mapped[str]=mapped_column(init=True)
-    #bounding_box: Mapped[str]
-    #geom: Mapped[str]
+    shape_type: Mapped[str] = mapped_column(init=True)
+    parent_id: Mapped[str] = mapped_column(init=True)
+    # bounding_box: Mapped[str]
+    # geom: Mapped[str]
     # hierarchy: str
     bounding_box = None
     properties = None
     feature = None
     geometry = None
-
     geom = None
 
     def add_geos(self):
@@ -88,7 +90,7 @@ class Shapefile(db.Model):
 class ShapefilePropertySchema(PropertiesSchema, ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Shapefile
-        fields = ('id', 'name'  )
+        fields = ('id', 'name')
 
 
 class ShapefileFeatureSchema(FeatureSchema, ma.SQLAlchemyAutoSchema):
