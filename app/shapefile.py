@@ -4,7 +4,7 @@ from typing import List
 
 from sqlalchemy import select
 
-from config import df, reporting_markets, excluded_shapefiles, ignored_geo_shapes, app, db
+from config import df, reporting_markets, excluded_shapefiles, ignored_geo_shapes, app, db, config
 from models import ShapefileBuilder, features_schema, featurecollection_schema, Shapefile
 
 
@@ -72,7 +72,7 @@ def get_neighbourhoods_by_locality_id(locality_id):
         market = given_market.id
 
     with app.app_context():
-        stmt = select(Shapefile).filter(Shapefile.parent_id == market)
+        stmt = select(Shapefile).filter(Shapefile.parent_id == market).where(Shapefile.shape_type == 'neighbourhood')
         neighbourhoods = db.session.execute(stmt).scalars().all()
 
     neighbourhood_ids = [neighbourhood.id for neighbourhood in neighbourhoods]
@@ -81,6 +81,7 @@ def get_neighbourhoods_by_locality_id(locality_id):
 
 def get_shapefiles(market_filter=reporting_markets):
     shapefile_objs = _get_related_shapefiles(market_filter)
+    return shapefile_objs
     shape_features = features_schema.dump(shapefile_objs)
 
     class Meta:
@@ -100,3 +101,6 @@ def get_shapefiles(market_filter=reporting_markets):
 #
 #     geojson_file = featurecollection_schema.dump(Meta)
 #     return geojson_file
+
+def get_reporting_markets():
+    return config['reporting_markets']

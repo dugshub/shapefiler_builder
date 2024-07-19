@@ -25,7 +25,7 @@ def populate_db():
         markets = db.session.execute(stmt).scalars().all()
         market_ids = [market.id for market in markets]
 
-    all_neighbourhoods = shapefile._get_related_ids(market_filter=market_ids)
+    all_neighbourhoods = shapefile._get_related_ids()
 
     neighbourhoods = [ShapefileBuilder(neighbourhood).createMaplayerObject() for neighbourhood in all_neighbourhoods]
     with app.app_context():

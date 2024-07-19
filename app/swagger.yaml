@@ -29,6 +29,15 @@ paths:
       responses:
         "200":
           description: "Successfully read all placetypes"
+  /reporting_markets:
+    get:
+      operationId: "shapefile.get_reporting_markets"
+      tags:
+        - "Reporting Markets"
+      summary: "Read the list of reporting markets"
+      responses:
+        "200":
+          description: "Successfully read all reporting markets"
 
   /neighbourhoods/{locality_id}:
     get:
