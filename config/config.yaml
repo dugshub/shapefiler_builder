@@ -1,5 +1,4 @@
 datapath: "/Users/Shared/wofdata/data/"
-
 reporting_markets:
   - Name: "Chicago"
     id: 85940195
@@ -18,5 +17,5 @@ reporting_markets:
   - Name: "San Fransisco"
     id: 85922583
     alt_shape: "alt-mapzen"
-  - Name: "Miami"
+  - name: Miami
     id: 85933669

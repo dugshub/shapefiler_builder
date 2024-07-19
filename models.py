@@ -24,24 +24,31 @@ class ShapefileBuilder():
         hierarchy = wof_json['properties']['wof:hierarchy']
         parent_id = wof_json['properties']['wof:parent_id']
         shape_type = wof_json['properties']['wof:placetype']
+        locality = wof_json['properties']['wof:hierarchy'][0].get('locality_id')
 
         return self.createShapefile(
             geometry=geometry,
             bounding_box=bounding_box,
             name=name,
-            hierarchy=hierarchy,
-            parent_id=parent_id
+            # hierarchy=hierarchy,
+            parent_id=parent_id,
+            type=shape_type,
+            locality=locality
         )
 
-    def createShapefile(self, geometry, bounding_box, name, hierarchy, parent_id):
+    def createShapefile(self, geometry, bounding_box, name, parent_id, type, locality):
         shape = Shapefile(
-                    id=self.id,
-                    name=name,
-                    bounding_box=bounding_box,
-                    geom=geometry,
-                    hierarchy=hierarchy
-                )
-
+            id=self.id,
+            name=name,
+            # bounding_box=bounding_box,
+            # geom=geometry,
+            # hierarchy=hierarchy,
+            shape_type=type,
+            parent_id = locality
+        )
+        shape.bounding_box = bounding_box
+        shape.geom = geometry
+        shape.add_geos()
         return shape
 
     def _get_filepath(self):
@@ -52,15 +59,22 @@ class ShapefileBuilder():
 
 #         sqla_session = db.sess
 class Shapefile(db.Model):
-    __tablename__ = 'shapefiles'
+    __tablename__ = 'shapefile'
 
     id: Mapped[int] = mapped_column(primary_key=True, init=True)
     name: Mapped[str] = mapped_column(init=True)
-    bounding_box: Mapped[str] = mapped_column(init=True)
-    geom: Mapped[str] = mapped_column(init=True)
-    hierarchy: str
+    shape_type: Mapped[str] = mapped_column(init=True)
+    parent_id: Mapped[str] = mapped_column(init=True)
+    # bounding_box: Mapped[str]
+    # geom: Mapped[str]
+    # hierarchy: str
+    bounding_box = None
+    properties = None
+    feature = None
+    geometry = None
+    geom = None
 
-    def __post_init__(self):
+    def add_geos(self):
         self.properties = property_schema.dump(self)
         self.geometry = geojson_schema.dump(self.geom)
         self.feature = feature_schema.dump(self)
@@ -76,7 +90,7 @@ class Shapefile(db.Model):
 class ShapefilePropertySchema(PropertiesSchema, ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Shapefile
-        fields = ('id', 'name', 'bounding_box')
+        fields = ('id', 'name')
 
 
 class ShapefileFeatureSchema(FeatureSchema, ma.SQLAlchemyAutoSchema):
@@ -92,6 +106,7 @@ class ShapefileFeatureSchema(FeatureSchema, ma.SQLAlchemyAutoSchema):
 class ShapefileGeoJSONSchema(GeoJSONSchema, ma.SQLAlchemyAutoSchema):
     feature_schema = ShapefileFeatureSchema
 
+
 class ShapefileFeatureCollectionSchema(FeatureCollectionSchema, ma.SQLAlchemyAutoSchema):
     type = Str(
         default='FeatureCollection',
@@ -101,6 +116,11 @@ class ShapefileFeatureCollectionSchema(FeatureCollectionSchema, ma.SQLAlchemyAut
         required=True,
     )
 
+
+# class Neighbourhood(Shapefile):
+#     __tablename__ = "neighbourhood"
+#     id :Mapped[int] = mapped_column(ForeignKey('shapefile.id'), primary_key=True)
+#     neighbourhood_name: Mapped[str]
 
 
 geojson_schema = ShapefileGeoJSONSchema()

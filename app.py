@@ -15,6 +15,7 @@ def home():  # put application's code here
 
 if __name__ == '__main__':
     build_database.build_db()
+    build_database.populate_db()
     app.run(host="0.0.0.0", port=8765,)
 
 
